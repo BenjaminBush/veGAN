@@ -4,3 +4,13 @@ Optimizers (both for G and D): Adam, RMSProp (w/ the default parameters. Default
 Batch Sizes (both for G and D): (60), 100
 
 checkpoint every 50 epochs
+
+Default Params:
+	- Batch Size = 100
+	- D Optimizer = Adam, adam_lr = 0.0002, adam_beta_1 = 0.5
+	- G Optimizer = Adam, adam_lr = 0.0002, adam_beta_1 = 0.5
+
+Trial 1:
+	- Batch Size = 100
+	- D Optimizer = RMSProp, rmsprop_lr = 0.0002, rmsprop_decay = 6e-8
+	- G Optimizer = Adam, adam_lr = 0.0002, adam_beta_1 = 0.5

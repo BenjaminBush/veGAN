@@ -1,5 +1,6 @@
 from __future__ import print_function
 import os
+import sys
 from collections import defaultdict
 
 try:
@@ -18,7 +19,7 @@ from utils.dataprocessing import preprocess_data
 
 import keras.backend as K
 from keras.datasets import cifar10
-from keras.optimizers import Adam
+from keras.optimizers import Adam, RMSProp
 from keras.initializers import TruncatedNormal
 from keras.utils.generic_utils import Progbar
 from keras.layers import Input
@@ -32,6 +33,13 @@ path = "images"  # The path to store the generated images
 load_weight = False
 # Set True if you need to reload weight
 load_epoch = 0  # Decide which epoch to reload weight, please check your file name
+
+# Manually implement Keras early stopping
+patience = 5
+prev_g_loss = float("inf")
+prev_d_loss = float("inf")
+done = 0
+
 
 
 if __name__ == '__main__':
@@ -49,10 +57,16 @@ if __name__ == '__main__':
 
     # build the discriminator, Choose Adam as optimizer according to GANHACK
     # Adam parameters suggested in https://arxiv.org/abs/1511.06434
-    adam_lr = 0.0002
-    adam_beta_1 = 0.5
-    discriminator.compile(
-        optimizer=Adam(lr=adam_lr, beta_1=adam_beta_1),
+    # adam_lr = 0.0002
+    # adam_beta_1 = 0.5
+    # discriminator.compile(
+    #     optimizer=Adam(lr=adam_lr, beta_1=adam_beta_1),
+    #     loss=['binary_crossentropy', 'sparse_categorical_crossentropy']
+    # )
+    rmsprop_lr = 0.0002
+    rmsprop_decay = 6e-8
+        discriminator.compile(
+        optimizer=RMSProp(lr=rmsprop_lr, decay=rmsprop_decay),
         loss=['binary_crossentropy', 'sparse_categorical_crossentropy']
     )
 
@@ -218,11 +232,27 @@ if __name__ == '__main__':
         print(ROW_FMT.format('discriminator (test)',
                              *test_history['discriminator'][-1]))
 
+ 
+        # Check for Early Stopping Condition:
+
+        # If either G or D failed to do better
+        if prev_d_loss < discriminator_test_loss or prev_g_loss < generator_test_loss:
+            not_improved_epochs += 1
+        else:
+            not_improved_epochs = 0
+
+        # Update
+        prev_d_loss = discriminator_test_loss
+        prev_g_loss = generator_test_loss
+
+        if not_improved_epochs >= patience:
+            done = 1
+
         pickle.dump({'train': train_history, 'test': test_history},
                 open('acgan-history.pkl', 'wb'))
 
-        # save weights every epoch 50 epochs
-        if load_epoch % 1 == 0:
+        # save weights every epoch 50 epochs, or if we've hit early stopping condition
+        if load_epoch % 1 == 0 or done:
             generator.save_weights(
                 'params_generator_epoch_{0:03d}.hdf5'.format(load_epoch), True)
             discriminator.save_weights(
@@ -255,4 +285,7 @@ if __name__ == '__main__':
                 os.makedirs(path)
             Image.fromarray(img).save(
                 'images/plot_epoch_{0:03d}_generated.png'.format(load_epoch))
+
+        if done:
+            sys.exit(0)
 
