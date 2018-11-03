@@ -12,5 +12,5 @@ Default Params:
 
 Trial 1:
 	- Batch Size = 100
-	- D Optimizer = RMSProp, rmsprop_lr = 0.0002, rmsprop_decay = 6e-8
+	- D Optimizer = RMSprop, rmsprop_lr = 0.0002, rmsprop_decay = 6e-8
 	- G Optimizer = Adam, adam_lr = 0.0002, adam_beta_1 = 0.5

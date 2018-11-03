@@ -19,7 +19,7 @@ from utils.dataprocessing import preprocess_data
 
 import keras.backend as K
 from keras.datasets import cifar10
-from keras.optimizers import Adam, RMSProp
+from keras.optimizers import Adam, RMSprop
 from keras.initializers import TruncatedNormal
 from keras.utils.generic_utils import Progbar
 from keras.layers import Input
@@ -57,16 +57,16 @@ if __name__ == '__main__':
 
     # build the discriminator, Choose Adam as optimizer according to GANHACK
     # Adam parameters suggested in https://arxiv.org/abs/1511.06434
-    # adam_lr = 0.0002
-    # adam_beta_1 = 0.5
+    adam_lr = 0.0002
+    adam_beta_1 = 0.5
     # discriminator.compile(
     #     optimizer=Adam(lr=adam_lr, beta_1=adam_beta_1),
     #     loss=['binary_crossentropy', 'sparse_categorical_crossentropy']
     # )
     rmsprop_lr = 0.0002
     rmsprop_decay = 6e-8
-        discriminator.compile(
-        optimizer=RMSProp(lr=rmsprop_lr, decay=rmsprop_decay),
+    discriminator.compile(
+        optimizer=RMSprop(lr=rmsprop_lr, decay=rmsprop_decay),
         loss=['binary_crossentropy', 'sparse_categorical_crossentropy']
     )
 
