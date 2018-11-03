@@ -1,0 +1,6 @@
+GAN Architecture: ACGAN
+Num Epochs: Early stopping w/ patience of 5
+Optimizers (both for G and D): Adam, RMSProp (w/ the default parameters. Default from Paper or Keras documentation)
+Batch Sizes (both for G and D): (60), 100
+
+checkpoint every 50 epochs
