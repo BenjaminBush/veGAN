@@ -4,6 +4,7 @@ from keras.layers.advanced_activations import LeakyReLU
 from keras.layers.convolutional import Conv2DTranspose, Conv2D
 from keras.models import Sequential, Model
 from keras.layers.noise import GaussianNoise
+from utils.Minibatch import MinibatchDiscrimination
 
 
 class ACGAN(object):
@@ -11,7 +12,7 @@ class ACGAN(object):
         self.latent_size = latent_size
         self.class_num = class_num
         self.generator = self.build_generator(self.latent_size)
-        self.discriminator = self.build_generator() 
+        self.discriminator = self.build_discriminator(self.class_num) 
 
     def build_generator(self, latent_size):
         # we will map a pair of (z, L), where z is a latent vector and L is a
@@ -50,7 +51,7 @@ class ACGAN(object):
         return Model([latent, image_class], fake_image)
 
 
-    def build_discriminator(self):
+    def build_discriminator(self, class_num):
         # build a relatively standard conv net, with LeakyReLUs as suggested in
         # the reference paper
         cnn = Sequential()

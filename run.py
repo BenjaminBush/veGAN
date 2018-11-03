@@ -11,14 +11,18 @@ from PIL import Image
 from six.moves import range
 import matplotlib.pyplot as plt
 import numpy as np
-from models import ACGAN
+
+from models.ACGAN import ACGAN
+from utils.Minibatch import MinibatchDiscrimination
+from utils.dataprocessing import preprocess_data
 
 import keras.backend as K
 from keras.datasets import cifar10
 from keras.optimizers import Adam
 from keras.initializers import TruncatedNormal
 from keras.utils.generic_utils import Progbar
-from Minibatch import MinibatchDiscrimination
+from keras.layers import Input
+from keras.models import Model
 
 # The Star Wars Seed
 np.random.seed(456123)
@@ -28,11 +32,6 @@ path = "images"  # The path to store the generated images
 load_weight = False
 # Set True if you need to reload weight
 load_epoch = 0  # Decide which epoch to reload weight, please check your file name
-
-def preprocess_data(X_train, X_test):
-    X_train = (X_train.astype(np.float32) - 127.5) / 127.5
-    X_test = (X_test.astype(np.float32) - 127.5) / 127.5
-    return X_train, X_test
 
 
 if __name__ == '__main__':
@@ -48,10 +47,10 @@ if __name__ == '__main__':
     # Hyper params that we are considering
     batch_size = 100
 
+    # build the discriminator, Choose Adam as optimizer according to GANHACK
     # Adam parameters suggested in https://arxiv.org/abs/1511.06434
     adam_lr = 0.0002
     adam_beta_1 = 0.5
-    # build the discriminator, Choose Adam as optimizer according to GANHACK
     discriminator.compile(
         optimizer=Adam(lr=adam_lr, beta_1=adam_beta_1),
         loss=['binary_crossentropy', 'sparse_categorical_crossentropy']
@@ -223,7 +222,7 @@ if __name__ == '__main__':
                 open('acgan-history.pkl', 'wb'))
 
         # save weights every epoch 50 epochs
-        if load_epoch % 50 == 0:
+        if load_epoch % 1 == 0:
             generator.save_weights(
                 'params_generator_epoch_{0:03d}.hdf5'.format(load_epoch), True)
             discriminator.save_weights(
