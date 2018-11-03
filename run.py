@@ -232,11 +232,14 @@ if __name__ == '__main__':
         print(ROW_FMT.format('discriminator (test)',
                              *test_history['discriminator'][-1]))
 
+        # print("Generator test loss is {}".format(generator_test_loss))
+        # print("Discriminator test loss is {}".format(discriminator_test_loss))
+
  
         # Check for Early Stopping Condition:
 
         # If either G or D failed to do better
-        if prev_d_loss < discriminator_test_loss or prev_g_loss < generator_test_loss:
+        if prev_d_loss < discriminator_test_loss[0] or prev_g_loss < generator_test_loss[0]:
             not_improved_epochs += 1
         else:
             not_improved_epochs = 0
