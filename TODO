@@ -1,16 +1,46 @@
 GAN Architecture: ACGAN
 Num Epochs: Early stopping w/ patience of 5
 Optimizers (both for G and D): Adam, RMSProp (w/ the default parameters. Default from Paper or Keras documentation)
-Batch Sizes (both for G and D): (60), 100
+Batch Sizes: 60, 100
 
 checkpoint every 50 epochs
 
-Default Params:
+Trial 0 (Default Params): COMPLETED
 	- Batch Size = 100
 	- D Optimizer = Adam, adam_lr = 0.0002, adam_beta_1 = 0.5
 	- G Optimizer = Adam, adam_lr = 0.0002, adam_beta_1 = 0.5
 
-Trial 1:
+Trial 1: IN PROGRESS
 	- Batch Size = 100
 	- D Optimizer = RMSprop, rmsprop_lr = 0.0002, rmsprop_decay = 6e-8
 	- G Optimizer = Adam, adam_lr = 0.0002, adam_beta_1 = 0.5
+
+Trial 2: TODO
+	- Batch Size = 100
+	- D Optimizer = Adam, adam_lr = 0.0002, adam_beta_1 = 0.5
+	- G Optimizer = RMSprop, rmsprop_lr = 0.0002, rmsprop_decay = 6e-8
+
+Trial 3: TODO
+	- Batch Size = 100
+	- D Optimizer = RMSprop, rmsprop_lr = 0.0002, rmsprop_decay = 6e-8
+	- G Optimizer = RMSprop, rmsprop_lr = 0.0002, rmsprop_decay = 6e-8
+
+Trial 4: TODO
+	- Batch Size = 60
+	- D Optimizer = Adam, adam_lr = 0.0002, adam_beta_1 = 0.5
+	- G Optimizer = Adam, adam_lr = 0.0002, adam_beta_1 = 0.5
+
+Trial 5: TODO
+	- Batch Size = 60
+	- D Optimizer = RMSprop, rmsprop_lr = 0.0002, rmsprop_decay = 6e-8
+	- G Optimizer = Adam, adam_lr = 0.0002, adam_beta_1 = 0.5
+
+Trial 6: TODO
+	- Batch Size = 60
+	- D Optimizer = Adam, adam_lr = 0.0002, adam_beta_1 = 0.5
+	- G Optimizer = RMSprop, rmsprop_lr = 0.0002, rmsprop_decay = 6e-8
+
+Trial 7: TODO
+	- Batch Size = 60
+	- D Optimizer = RMSprop, rmsprop_lr = 0.0002, rmsprop_decay = 6e-8
+	- G Optimizer = RMSprop, rmsprop_lr = 0.0002, rmsprop_decay = 6e-8
