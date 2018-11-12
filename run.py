@@ -19,7 +19,7 @@ from utils.dataprocessing import preprocess_data
 
 import keras.backend as K
 from keras.datasets import cifar10
-from keras.optimizers import Adam, RMSprop
+from keras.optimizers import Adam, SGD
 from keras.initializers import TruncatedNormal
 from keras.utils.generic_utils import Progbar
 from keras.layers import Input
@@ -31,13 +31,18 @@ class_num = 10
 K.set_image_dim_ordering('th')
 path = "images"  # The path to store the generated images
 load_weight = False
+
+checkpoint_dir = "C:\\Users\\Ben\\Desktop\\checkpoints\\"
 # Set True if you need to reload weight
 load_epoch = 0  # Decide which epoch to reload weight, please check your file name
 
 # Manually implement Keras early stopping
-patience = 5
+g_patience = 5
+d_patience = 5
 prev_g_loss = float("inf")
 prev_d_loss = float("inf")
+g_not_improved_epochs = 0
+d_not_improved_epochs = 0
 done = 0
 
 
@@ -63,10 +68,12 @@ if __name__ == '__main__':
     #     optimizer=Adam(lr=adam_lr, beta_1=adam_beta_1),
     #     loss=['binary_crossentropy', 'sparse_categorical_crossentropy']
     # )
-    rmsprop_lr = 0.0002
-    rmsprop_decay = 6e-8
+    sgd_lr = 0.0002
+    sgd_decay = 1e-6
+    sgd_momentum = 0.9
+    sgd_nesterov = True
     discriminator.compile(
-        optimizer=RMSprop(lr=rmsprop_lr, decay=rmsprop_decay),
+        optimizer=SGD(lr=sgd_lr, decay=sgd_decay, momentum=sgd_momentum, nesterov=sgd_nesterov),
         loss=['binary_crossentropy', 'sparse_categorical_crossentropy']
     )
 
@@ -82,7 +89,7 @@ if __name__ == '__main__':
     combined = Model([latent, image_class], [fake, aux])
 
     combined.compile(
-        optimizer=Adam(lr=adam_lr, beta_1=adam_beta_1),
+        optimizer=SGD(lr=sgd_lr, decay=sgd_decay, momentum=sgd_momentum, nesterov=sgd_nesterov),
         loss=['binary_crossentropy', 'sparse_categorical_crossentropy']
     )
 
@@ -97,8 +104,8 @@ if __name__ == '__main__':
 
     # Do we need to load from a previous trial?
     if load_weight:
-        generator.load_weights('params_generator_epoch_{0:03d}.hdf5'.format(load_epoch))
-        discriminator.load_weights('params_discriminator_epoch_{0:03d}.hdf5'.format(load_epoch))
+        generator.load_weights(checkpoint_dir + 'params_generator_epoch_{0:03d}.hdf5'.format(load_epoch))
+        discriminator.load_weights(checkpoint_dir + 'params_discriminator_epoch_{0:03d}.hdf5'.format(load_epoch))
     else:
         load_epoch = 0
 
@@ -239,16 +246,20 @@ if __name__ == '__main__':
         # Check for Early Stopping Condition:
 
         # If either G or D failed to do better
-        if prev_d_loss < discriminator_test_loss[0] or prev_g_loss < generator_test_loss[0]:
-            not_improved_epochs += 1
+        if prev_d_loss < discriminator_test_loss[0]:
+            d_not_improved_epochs += 1
         else:
-            not_improved_epochs = 0
+            d_not_improved_epochs = 0
+        if prev_g_loss < generator_test_loss[0]:
+            g_not_improved_epochs += 1
+        else:
+            g_not_improved_epochs = 0
 
         # Update
-        prev_d_loss = discriminator_test_loss
-        prev_g_loss = generator_test_loss
+        prev_d_loss = discriminator_test_loss[0]
+        prev_g_loss = generator_test_loss[0]
 
-        if not_improved_epochs >= patience:
+        if g_not_improved_epochs >= g_patience or d_not_improved_epochs >= d_patience:
             done = 1
 
         pickle.dump({'train': train_history, 'test': test_history},
@@ -257,9 +268,9 @@ if __name__ == '__main__':
         # save weights every epoch 50 epochs, or if we've hit early stopping condition
         if load_epoch % 1 == 0 or done:
             generator.save_weights(
-                'params_generator_epoch_{0:03d}.hdf5'.format(load_epoch), True)
+                checkpoint_dir + 'params_generator_epoch_{0:03d}.hdf5'.format(load_epoch), True)
             discriminator.save_weights(
-                'params_discriminator_epoch_{0:03d}.hdf5'.format(load_epoch), True)
+                checkpoint_dir + 'params_discriminator_epoch_{0:03d}.hdf5'.format(load_epoch), True)
 
             # generate some pictures to display
             noise = np.random.normal(0, 0.5, (100, latent_size))
