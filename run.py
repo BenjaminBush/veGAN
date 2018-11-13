@@ -64,18 +64,18 @@ if __name__ == '__main__':
     # Adam parameters suggested in https://arxiv.org/abs/1511.06434
     adam_lr = 0.0002
     adam_beta_1 = 0.5
-    # discriminator.compile(
-    #     optimizer=Adam(lr=adam_lr, beta_1=adam_beta_1),
-    #     loss=['binary_crossentropy', 'sparse_categorical_crossentropy']
-    # )
+    discriminator.compile(
+        optimizer=Adam(lr=adam_lr, beta_1=adam_beta_1),
+        loss=['binary_crossentropy', 'sparse_categorical_crossentropy']
+    )
     sgd_lr = 0.0002
     sgd_decay = 1e-6
     sgd_momentum = 0.9
     sgd_nesterov = True
-    discriminator.compile(
-        optimizer=SGD(lr=sgd_lr, decay=sgd_decay, momentum=sgd_momentum, nesterov=sgd_nesterov),
-        loss=['binary_crossentropy', 'sparse_categorical_crossentropy']
-    )
+    # discriminator.compile(
+    #     optimizer=SGD(lr=sgd_lr, decay=sgd_decay, momentum=sgd_momentum, nesterov=sgd_nesterov),
+    #     loss=['binary_crossentropy', 'sparse_categorical_crossentropy']
+    # )
 
     latent = Input(shape=(latent_size,))
     image_class = Input(shape=(1,), dtype='int32')
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     combined = Model([latent, image_class], [fake, aux])
 
     combined.compile(
-        optimizer=SGD(lr=sgd_lr, decay=sgd_decay, momentum=sgd_momentum, nesterov=sgd_nesterov),
+        optimizer=Adam(lr=adam_lr, beta_1=adam_beta_1),
         loss=['binary_crossentropy', 'sparse_categorical_crossentropy']
     )
 
