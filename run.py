@@ -58,24 +58,24 @@ if __name__ == '__main__':
     generator = gan.generator
     
     # Hyper params that we are considering
-    batch_size = 100
+    batch_size = 60
 
     # build the discriminator, Choose Adam as optimizer according to GANHACK
     # Adam parameters suggested in https://arxiv.org/abs/1511.06434
     adam_lr = 0.0002
     adam_beta_1 = 0.5
-    discriminator.compile(
-        optimizer=Adam(lr=adam_lr, beta_1=adam_beta_1),
-        loss=['binary_crossentropy', 'sparse_categorical_crossentropy']
-    )
+    # discriminator.compile(
+    #     optimizer=Adam(lr=adam_lr, beta_1=adam_beta_1),
+    #     loss=['binary_crossentropy', 'sparse_categorical_crossentropy']
+    # )
     sgd_lr = 0.0002
     sgd_decay = 1e-6
     sgd_momentum = 0.9
     sgd_nesterov = True
-    # discriminator.compile(
-    #     optimizer=SGD(lr=sgd_lr, decay=sgd_decay, momentum=sgd_momentum, nesterov=sgd_nesterov),
-    #     loss=['binary_crossentropy', 'sparse_categorical_crossentropy']
-    # )
+    discriminator.compile(
+        optimizer=SGD(lr=sgd_lr, decay=sgd_decay, momentum=sgd_momentum, nesterov=sgd_nesterov),
+        loss=['binary_crossentropy', 'sparse_categorical_crossentropy']
+    )
 
     latent = Input(shape=(latent_size,))
     image_class = Input(shape=(1,), dtype='int32')
@@ -246,21 +246,22 @@ if __name__ == '__main__':
         # Check for Early Stopping Condition:
 
         # If either G or D failed to do better
-        if prev_d_loss < discriminator_test_loss[0]:
-            d_not_improved_epochs += 1
-        else:
-            d_not_improved_epochs = 0
-        if prev_g_loss < generator_test_loss[0]:
-            g_not_improved_epochs += 1
-        else:
-            g_not_improved_epochs = 0
+        if load_epoch >= 100:
+            if prev_d_loss < discriminator_test_loss[0]:
+                d_not_improved_epochs += 1
+            else:
+                d_not_improved_epochs = 0
+            if prev_g_loss < generator_test_loss[0]:
+                g_not_improved_epochs += 1
+            else:
+                g_not_improved_epochs = 0
 
-        # Update
-        prev_d_loss = discriminator_test_loss[0]
-        prev_g_loss = generator_test_loss[0]
+            # Update
+            prev_d_loss = discriminator_test_loss[0]
+            prev_g_loss = generator_test_loss[0]
 
-        if g_not_improved_epochs >= g_patience or d_not_improved_epochs >= d_patience:
-            done = 1
+            if g_not_improved_epochs >= g_patience or d_not_improved_epochs >= d_patience:
+                done = 1
 
         pickle.dump({'train': train_history, 'test': test_history},
                 open('acgan-history.pkl', 'wb'))
