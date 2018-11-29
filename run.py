@@ -30,11 +30,11 @@ np.random.seed(456123)
 class_num = 10
 K.set_image_dim_ordering('th')
 path = "images"  # The path to store the generated images
-load_weight = False
+load_weight = True
 
 checkpoint_dir = "C:\\Users\\Ben\\Desktop\\checkpoints\\"
 # Set True if you need to reload weight
-load_epoch = 0  # Decide which epoch to reload weight, please check your file name
+load_epoch = 266  # Decide which epoch to reload weight, please check your file name
 
 # Manually implement Keras early stopping
 g_patience = 5
@@ -88,8 +88,12 @@ if __name__ == '__main__':
     fake, aux = discriminator(fake)
     combined = Model([latent, image_class], [fake, aux])
 
+    # combined.compile(
+    #     optimizer=Adam(lr=adam_lr, beta_1=adam_beta_1),
+    #     loss=['binary_crossentropy', 'sparse_categorical_crossentropy']
+    # )
     combined.compile(
-        optimizer=Adam(lr=adam_lr, beta_1=adam_beta_1),
+        optimizer=SGD(lr=sgd_lr, decay=sgd_decay, momentum=sgd_momentum, nesterov=sgd_nesterov),
         loss=['binary_crossentropy', 'sparse_categorical_crossentropy']
     )
 
